@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const { PrismaClient } = require('@prisma/client');
+const { validateID, validateString } = require('./validations.js');
 
 const prisma = new PrismaClient();
 
@@ -15,6 +16,12 @@ const getAllProjects = asyncHandler(async (req, res) => {
 // @route   GET /api/projects/user
 // @access  Private
 const getUserProjects = asyncHandler(async (req, res) => {
+  //validate id
+  if (!validateID(req.user.id)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
+
   const project = await prisma.project.findMany({
     where: {
       entries: {
@@ -35,6 +42,12 @@ const getUserProjects = asyncHandler(async (req, res) => {
 // @route   POST /api/projects
 // @access  Private, admin
 const addProject = asyncHandler(async (req, res) => {
+  //validate inputs
+  if (!validateString(req.body.name)) {
+    res.status(400);
+    throw new Error('Invalid name');
+  }
+
   const { name } = req.body;
   if (!name) {
     res.status(400);
@@ -71,10 +84,16 @@ const addProject = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Get all projects
+// @desc    Remove project
 // @route   Delete /api/projects
 // @access  Private, admin
 const removeProject = asyncHandler(async (req, res) => {
+  //validate inputs
+  if (!validateString(req.body.name)) {
+    res.status(400);
+    throw new Error('Invalid name');
+  }
+
   const { name } = req.body;
   if (!name) {
     res.status(400);

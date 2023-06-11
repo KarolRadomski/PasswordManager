@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
+const { validateID, validateString, validateEmail, validatePassword } = require('./validations.js');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -8,6 +9,16 @@ const prisma = new PrismaClient();
 // @route   POST /api/projects/:userID
 // @access  Private, admin
 const grantAccessToExistingUser = asyncHandler(async (req, res) => {
+  //Validate inputs
+  if (!validateID(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
+  if (!validateID(req.body.entryID)) {
+    res.status(400);
+    throw new Error('Invalid entry ID');
+  }
+
   const userID = req.params.id;
   const entryID = req.body.entryID;
 
@@ -68,6 +79,24 @@ const grantAccessToExistingUser = asyncHandler(async (req, res) => {
 // @route   POST /api/access
 // @access  Private, admin
 const grantAccessToNewUser = asyncHandler(async (req, res) => {
+  //Validate inputs
+  if (!validateString(req.body.name)) {
+    res.status(400);
+    throw new Error('Invalid name');
+  }
+  if (!validateEmail(req.body.email)) {
+    res.status(400);
+    throw new Error('Invalid email');
+  }
+  if (!validatePassword(req.body.password)) {
+    res.status(400);
+    throw new Error('Invalid password');
+  }
+  if (!validateID(req.body.entryID)) {
+    res.status(400);
+    throw new Error('Invalid entry ID');
+  }
+
   const { name, email, password, entryId } = req.body;
 
   if (!name || !email || !password || !entryId) {

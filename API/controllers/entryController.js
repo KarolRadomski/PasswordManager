@@ -1,13 +1,23 @@
 const asyncHandler = require('express-async-handler');
 const { PrismaClient } = require('@prisma/client');
 const CryptoJS = require('crypto-js');
-
+const { validateID, validateString, validateEmail, validatePassword } = require('./validations.js');
 const prisma = new PrismaClient();
 
 // @desc    Get all user project entry
 // @route   GET /api/entry/user/:projectId
 // @access  Private
 const getUserEntry = asyncHandler(async (req, res) => {
+  //validate project id
+  if (!validateID(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
+  //validate user id
+  if (!validateID(req.user.id)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
   const projectId = req.params.id;
   const project = await prisma.Project.findUnique({
     where: {
@@ -44,6 +54,11 @@ const getUserEntry = asyncHandler(async (req, res) => {
 // @route   GET /api/entry
 // @access  Private, admin
 const getAllProjectEntry = asyncHandler(async (req, res) => {
+  //validate project id
+  if (!validateID(req.body.projectId)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
   const { projectId } = req.body;
   if (!projectId) {
     res.status(400);
@@ -69,6 +84,28 @@ const getAllProjectEntry = asyncHandler(async (req, res) => {
 // @route   POST /api/entry
 // @access  private, admin
 const addNewProjectEntry = asyncHandler(async (req, res) => {
+  //validate inputs
+  if (!validateString(req.body.name)) {
+    res.status(400);
+    throw new Error('Invalid name');
+  }
+  if (!validateString(req.body.url)) {
+    res.status(400);
+    throw new Error('Invalid url');
+  }
+  if (!validateID(req.body.projectId)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
+  if (!validateString(req.body.login)) {
+    res.status(400);
+    throw new Error('Invalid login');
+  }
+  if (!validateString(req.body.password)) {
+    res.status(400);
+    throw new Error('Invalid password');
+  }
+
   const { name, login, password, url, projectId } = req.body;
 
   if (!name || !url || !projectId) {
@@ -152,6 +189,28 @@ const addNewProjectEntry = asyncHandler(async (req, res) => {
 // @route   PUT /api/entry/:entryId
 // @access  Private, admin
 const editProjectEntry = asyncHandler(async (req, res) => {
+  //validate inputs
+  if (!validateString(req.body.name)) {
+    res.status(400);
+    throw new Error('Invalid name');
+  }
+  if (!validateString(req.body.url)) {
+    res.status(400);
+    throw new Error('Invalid url');
+  }
+  if (!validateID(req.body.projectId)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
+  if (!validateString(req.body.login)) {
+    res.status(400);
+    throw new Error('Invalid login');
+  }
+  if (!validateString(req.body.password)) {
+    res.status(400);
+    throw new Error('Invalid password');
+  }
+
   const entryId = req.params.id;
   const { name, login, password, url, projectId } = req.body;
 
@@ -227,6 +286,12 @@ const editProjectEntry = asyncHandler(async (req, res) => {
 // @route   DELETE /api/entry/:entryID
 // @access  Private, admin
 const removeProjectEntry = asyncHandler(async (req, res) => {
+  //validate inputs
+  if (!validateID(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
+
   const entryId = req.params.id;
   if (!entryId) {
     res.status(400);

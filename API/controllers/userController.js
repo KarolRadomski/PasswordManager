@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-
+const { validateID, validateString, validateEmail, validatePassword } = require('./validations.js');
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -18,6 +18,12 @@ const getAll = asyncHandler(async (req, res) => {
 // @route   GET /api/users/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
+  //validate id
+  if (!validateID(req.user.id)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
+
   const me = await prisma.User.findUnique({
     where: {
       id: req.user.id,
@@ -38,12 +44,21 @@ const getMe = asyncHandler(async (req, res) => {
 // @route   POST /api/users/add
 // @access  Private, admin
 const addUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
+  //validate inputs
+  if (!validateString(req.body.name)) {
     res.status(400);
-    throw new Error('Please add all fields');
+    throw new Error('Invalid name');
   }
+  if (!validateEmail(req.body.email)) {
+    res.status(400);
+    throw new Error('Invalid email');
+  }
+  if (!validatePassword(req.body.password)) {
+    res.status(400);
+    throw new Error('Invalid password');
+  }
+
+  const { name, email, password } = req.body;
 
   //Check if user exists
   const userExists = await prisma.User.findUnique({
@@ -88,12 +103,16 @@ const addUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
+  if (!validateEmail(req.body.email)) {
     res.status(400);
-    throw new Error('Fill all fields');
+    throw new Error('Invalid email');
   }
+  if (!validatePassword(req.body.password)) {
+    res.status(400);
+    throw new Error('Invalid password');
+  }
+
+  const { email, password } = req.body;
 
   //Check for user email
   const user = await prisma.User.findUnique({
