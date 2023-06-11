@@ -7,6 +7,7 @@ const { admin } = require('../middleware/adminMiddleware.js');
 router.get('/', protect, admin, getAll);
 router.get('/me', protect, getMe);
 router.post('/add', protect, admin, addUser);
+// router.post('/add', addUser);
 router.post('/login', loginUser);
 
 module.exports = router;
