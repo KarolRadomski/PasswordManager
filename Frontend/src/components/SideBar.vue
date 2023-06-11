@@ -3,9 +3,9 @@
     <div>
       <input class="searchBar" type="text" placeholder="Search" />
       <ul>
-        <li><a href="/">Dashboard</a></li>
-        <li>Projects</li>
-        <li>Users</li>
+        <li :class="[isActive == 'Dashboard' ? 'active' : '']"><a href="/">Dashboard</a></li>
+        <li :class="[isActive == 'Projects' ? 'active' : '']"><a href="./projects">Projects</a></li>
+        <li :class="[isActive == 'Users' ? 'active' : '']"><a href="./users">Users</a></li>
       </ul>
     </div>
 
@@ -25,6 +25,7 @@ import { mapState, mapActions } from 'pinia';
 
 export default {
   name: 'SideBar',
+  props: ['isActive'],
   data() {
     return {};
   },
@@ -86,11 +87,15 @@ a {
   color: white;
   text-decoration: none;
 }
-li:hover {
+li:hover > a {
   cursor: pointer;
   color: #3498db;
 }
 
+.active > a {
+  color: #3498db;
+  font-weight: bold;
+}
 .userInfo {
   display: flex;
   align-items: center;

@@ -1,6 +1,6 @@
 <template>
   <div class="homeWrapper">
-    <SideBar class="sideBar" />
+    <SideBar class="sideBar" isActive="Dashboard" />
     <div class="home">
       <div class="title">
         <h1>Dashboard</h1>
@@ -27,7 +27,7 @@
       </div>
 
       <div class="quickAccessWrapper">
-        <div class="quickAddProject">
+        <div class="quickAddProject" @click="this.$router.push('/add-project')">
           <h3>Add Project</h3>
         </div>
         <div class="quickAddUser">
@@ -112,6 +112,10 @@ export default {
   border-radius: 5px;
   margin-bottom: 40px;
 }
+
+.quickAccessWrapper > * {
+  cursor: pointer;
+}
 .card h3 {
   font-size: 30px;
   margin-top: 10px;
@@ -137,5 +141,10 @@ export default {
 
 .quickGrantAccess {
   background-color: #e94560;
+}
+
+a {
+  text-decoration: none;
+  color: white;
 }
 </style>
