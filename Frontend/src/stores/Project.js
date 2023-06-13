@@ -52,6 +52,25 @@ export const useProjectStore = defineStore('Project', {
         this.projectError = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
       }
     },
+    async removeProject(name) {
+      try {
+        this.projectError = '';
+
+        let user = JSON.parse(localStorage.getItem('user'));
+        let headers = {
+          Authorization: 'Bearer ' + user.token,
+
+        };
+        console.log(config);
+        const data = {
+          name,
+        };
+
+        await axios.delete('api/projects', { headers, data });
+      } catch (error) {
+        this.projectError = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+      }
+    },
   },
   getters: {},
 });
