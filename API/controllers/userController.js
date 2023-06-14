@@ -135,6 +135,43 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+const removeUser = asyncHandler(async (req, res) => {
+  //validate id
+  if (!validateID(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
+
+  const user = await prisma.User.findUnique({
+    where: {
+      id: parseInt(req.params.id),
+    },
+    include: {
+      accesses: true,
+    },
+  });
+
+  if (user) {
+    //Delete all accesses
+    for (let i = 0; i < user.accesses.length; i++) {
+      await prisma.access.delete({
+        where: {
+          id: parseInt(user.accesses[i].id),
+        },
+      });
+    }
+
+    //Delete user
+    await prisma.user.delete({
+      where: {
+        id: parseInt(req.params.id),
+      },
+    });
+
+    res.json({ message: 'User removed' });
+  }
+});
+
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
@@ -146,4 +183,5 @@ module.exports = {
   getMe,
   addUser,
   loginUser,
+  removeUser,
 };

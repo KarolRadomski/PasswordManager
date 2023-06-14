@@ -1,42 +1,32 @@
 <template>
   <div class="projectsWrapper">
-    <SideBar class="sideBar" isActive="Projects" />
+    <SideBar class="sideBar" isActive="Users" />
     <div class="projects">
       <div class="title">
-        <h1>Projects</h1>
-        <p>View all projects</p>
+        <h1>Users</h1>
+        <p>View all users</p>
       </div>
       <div class="nav">
-        <button type="button" id="addProject" @click="this.$router.push('/add-project')">Add project</button>
+        <button type="button" id="addProject" @click="this.$router.push('/add-user')">Add user</button>
       </div>
       <table class="projectsList">
         <thead>
           <tr>
-            <th>Project name</th>
+            <th>Name</th>
+            <th>Email</th>
             <th style="width: 150px">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="project in this.projects" :key="project.id">
-            <td>{{ project.name }}</td>
+          <tr v-for="user in this.users" :key="user.id">
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
             <td class="d-flex">
               <button
-                type="button"
-                id="manage"
                 @click="
                   () => {
-                    this.selectProject(project.id);
-                    this.$router.push('/entries');
-                  }
-                "
-              >
-                Manage
-              </button>
-              <button
-                @click="
-                  () => {
-                    this.toRemove.id = project.id;
-                    this.toRemove.name = project.name;
+                    this.toRemove.id = user.id;
+                    this.toRemove.name = user.name;
                   }
                 "
                 class="btn btn-primary"
@@ -61,7 +51,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Remove project</h1>
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Remove user</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -81,10 +71,10 @@
 <script>
 import SideBar from '../components/SideBar.vue';
 import { mapState, mapActions } from 'pinia';
-import { useProjectStore } from '../stores/Project';
+import { useUserStore } from '../stores/User';
 
 export default {
-  name: 'Projects',
+  name: 'Users',
   data() {
     return {
       toRemove: {
@@ -94,19 +84,19 @@ export default {
     };
   },
   methods: {
-    ...mapActions(useProjectStore, ['getAllProjects', 'removeProject', 'selectProject']),
+    ...mapActions(useUserStore, ['getAllUsers', 'removeUser']),
     handleRemove() {
-      this.removeProject(this.toRemove.name, this.toRemove.id);
+      this.removeUser(this.toRemove.id);
     },
   },
   computed: {
-    ...mapState(useProjectStore, ['projects']),
+    ...mapState(useUserStore, ['users']),
   },
   components: {
     SideBar,
   },
   created() {
-    this.getAllProjects();
+    this.getAllUsers();
   },
 };
 </script>

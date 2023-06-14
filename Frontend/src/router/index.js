@@ -3,6 +3,11 @@ import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Projects from '../views/Projects.vue';
 import AddProject from '../views/AddProject.vue';
+import Entries from '../views/Entries.vue';
+import AddEntry from '../views/AddEntry.vue';
+import EditEntry from '../views/EditEntry.vue';
+import AddUser from '../views/AddUser.vue';
+import Users from '../views/Users.vue';
 
 const routes = [
   {
@@ -24,6 +29,31 @@ const routes = [
     path: '/add-project',
     name: 'add-project',
     component: AddProject,
+  },
+  {
+    path: '/entries',
+    name: 'entries',
+    component: Entries,
+  },
+  {
+    path: '/add-entry',
+    name: 'add-entry',
+    component: AddEntry,
+  },
+  {
+    path: '/edit-entry',
+    name: 'edit-entry',
+    component: EditEntry,
+  },
+  {
+    path: '/users',
+    name: 'users',
+    component: Users,
+  },
+  {
+    path: '/add-user',
+    name: 'add-user',
+    component: AddUser,
   },
 ];
 

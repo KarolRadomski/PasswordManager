@@ -88,7 +88,6 @@ const addProject = asyncHandler(async (req, res) => {
 // @route   Delete /api/projects
 // @access  Private, admin
 const removeProject = asyncHandler(async (req, res) => {
-  console.log("Dziala");
   //validate inputs
   if (!validateString(req.body.name)) {
     res.status(400);

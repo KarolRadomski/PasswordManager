@@ -6,6 +6,7 @@ export const useUserStore = defineStore('User', {
     return {
       user: JSON.parse(localStorage.getItem('user')),
       userError: '',
+      users: [],
     };
   },
   actions: {
@@ -29,6 +30,60 @@ export const useUserStore = defineStore('User', {
         this.userError = '';
         this.user = null;
         localStorage.removeItem('user');
+      } catch (error) {
+        this.userError = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+      }
+    },
+    async createUser(userData) {
+      try {
+        this.userError = '';
+
+        let user = JSON.parse(localStorage.getItem('user'));
+        let config = {
+          headers: {
+            Authorization: 'Bearer ' + user.token,
+          },
+        };
+
+        const data = {
+          name: userData.username,
+          email: userData.email,
+          password: userData.password,
+        };
+
+        await axios.post('api/users/add', data, config);
+      } catch (error) {
+        this.userError = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+      }
+    },
+    async getAllUsers() {
+      try {
+        this.userError = '';
+
+        let user = JSON.parse(localStorage.getItem('user'));
+        let headers = {
+          Authorization: 'Bearer ' + user.token,
+        };
+
+        const temp = await axios.get('api/users', { headers });
+
+        this.users = temp.data.filter((user) => user.admin !== true);
+      } catch (error) {
+        this.userError = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+      }
+    },
+    async removeUser(userID) {
+      try {
+        this.userError = '';
+
+        let user = JSON.parse(localStorage.getItem('user'));
+        let headers = {
+          Authorization: 'Bearer ' + user.token,
+        };
+
+        await axios.delete(`api/users/${userID}`, { headers });
+
+        this.users = this.users.filter((user) => user.id !== userID);
       } catch (error) {
         this.userError = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
       }

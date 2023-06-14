@@ -40,12 +40,12 @@ const getUserEntry = asyncHandler(async (req, res) => {
     },
   });
 
-  entry.map((item) => {
-    if (item.password) {
-      let bytes = CryptoJS.AES.decrypt(item.password, process.env.CRYPTO_SECRET);
-      item.password = bytes.toString(CryptoJS.enc.Utf8);
-    }
-  });
+  // entry.map((item) => {
+  //   if (item.password) {
+  //     let bytes = CryptoJS.AES.decrypt(item.password, process.env.CRYPTO_SECRET);
+  //     item.password = bytes.toString(CryptoJS.enc.Utf8);
+  //   }
+  // });
 
   res.status(201).json(entry);
 });
@@ -70,12 +70,12 @@ const getAllProjectEntry = asyncHandler(async (req, res) => {
     },
   });
 
-  entries.map((item) => {
-    if (item.password) {
-      let bytes = CryptoJS.AES.decrypt(item.password, process.env.CRYPTO_SECRET);
-      item.password = bytes.toString(CryptoJS.enc.Utf8);
-    }
-  });
+  // entries.map((item) => {
+  //   if (item.password) {
+  //     let bytes = CryptoJS.AES.decrypt(item.password, process.env.CRYPTO_SECRET);
+  //     item.password = bytes.toString(CryptoJS.enc.Utf8);
+  //   }
+  // });
 
   res.json(entries);
 });
@@ -88,10 +88,6 @@ const addNewProjectEntry = asyncHandler(async (req, res) => {
   if (!validateString(req.body.name)) {
     res.status(400);
     throw new Error('Invalid name');
-  }
-  if (!validateString(req.body.url)) {
-    res.status(400);
-    throw new Error('Invalid url');
   }
   if (!validateID(req.body.projectId)) {
     res.status(400);
@@ -108,7 +104,7 @@ const addNewProjectEntry = asyncHandler(async (req, res) => {
 
   const { name, login, password, url, projectId } = req.body;
 
-  if (!name || !url || !projectId) {
+  if (!name || !login || !password || !projectId) {
     res.status(400);
     throw new Error('Please add all fields');
   }
@@ -126,7 +122,7 @@ const addNewProjectEntry = asyncHandler(async (req, res) => {
       },
     },
   });
-  console.log(entryExists);
+
   if (entryExists.length > 0) {
     res.status(400);
     throw new Error('Entry already exist');
@@ -189,96 +185,117 @@ const addNewProjectEntry = asyncHandler(async (req, res) => {
 // @route   PUT /api/entry/:entryId
 // @access  Private, admin
 const editProjectEntry = asyncHandler(async (req, res) => {
-  //validate inputs
-  if (!validateString(req.body.name)) {
-    res.status(400);
-    throw new Error('Invalid name');
-  }
-  if (!validateString(req.body.url)) {
-    res.status(400);
-    throw new Error('Invalid url');
-  }
-  if (!validateID(req.body.projectId)) {
-    res.status(400);
-    throw new Error('Invalid ID');
-  }
-  if (!validateString(req.body.login)) {
-    res.status(400);
-    throw new Error('Invalid login');
-  }
-  if (!validateString(req.body.password)) {
-    res.status(400);
-    throw new Error('Invalid password');
-  }
+  try {
+    //validate inputs
+    if (!validateString(req.body.name)) {
+      res.status(400);
+      throw new Error('Invalid name');
+    }
 
-  const entryId = req.params.id;
-  const { name, login, password, url, projectId } = req.body;
+    if (!validateString(req.body.login)) {
+      res.status(400);
+      throw new Error('Invalid login');
+    }
+    if (!validateString(req.body.password)) {
+      res.status(400);
+      throw new Error('Invalid password');
+    }
 
-  if (!name || !url) {
-    res.status(400);
-    throw new Error('Please fill all fields');
-  }
+    const entryId = req.params.id;
+    const { name, login, password, url } = req.body;
 
-  //Check if entry exist
-  const entryExists = await prisma.Entry.findUnique({
-    where: {
-      id: Number(entryId),
-    },
-  });
-  if (!entryExists) {
-    res.status(400);
-    throw new Error('Entry doesnt exists');
-  }
+    if (!name) {
+      res.status(400);
+      throw new Error('Please fill all fields');
+    }
 
-  //Check if name is unique
-  if (name) {
-    const nameExists = await prisma.Entry.findMany({
+    //Check if entry exist
+    const entryExists = await prisma.Entry.findUnique({
       where: {
-        AND: {
-          name: {
-            equals: name,
-          },
-          projectId: {
-            equals: Number(projectId),
-          },
-        },
+        id: Number(entryId),
       },
     });
-    if (nameExists.length > 0) {
+    if (!entryExists) {
       res.status(400);
-      throw new Error('Entry name already exists');
+      throw new Error('Entry doesnt exists');
     }
-  }
 
-  // Encrypt password
-  if (password) {
-    var encryptedPassword = CryptoJS.AES.encrypt(password, process.env.CRYPTO_SECRET).toString();
-  }
+    //Check if name is unique
 
-  //Update entry
-  const entry = await prisma.Entry.update({
-    where: { id: Number(entryId) },
-    data: {
-      name,
-      login,
-      password: encryptedPassword,
-      url,
-    },
-  });
+    // Encrypt password
+    if (password) {
+      var encryptedPassword = CryptoJS.AES.encrypt(password, process.env.CRYPTO_SECRET).toString();
+    }
 
-  //Response after update
-  if (entry) {
-    res.status(201).json({
-      id: Number(entry.id),
-      name: entry.name,
-      login: entry.login,
-      password: entry.password,
-      url: entry.url,
-      projectId: Number(entry.projectId),
+    //Update entry
+    const entry = await prisma.Entry.update({
+      where: { id: Number(entryId) },
+      data: {
+        name,
+        login,
+        password: encryptedPassword,
+        url,
+      },
     });
-  } else {
-    res.status(400);
-    throw new Error('Invalid entry data');
+
+    //remove all entry accesses
+    const access = await prisma.Access.deleteMany({
+      where: {
+        entryId: Number(entryId),
+      },
+    });
+    if (!access) {
+      res.status(400);
+      throw new Error('Failed to remove access to admin');
+    }
+
+    // grant access to admin
+
+    const accessAdmin = await prisma.Access.create({
+      data: {
+        userId: Number(req.user.id),
+        entryId: Number(entryId),
+      },
+    });
+    if (!accessAdmin) {
+      res.status(400);
+      throw new Error('Failed to grant access to admin');
+    }
+
+    // grant access for each user in users array
+
+    if (req.body.users) {
+      const users = req.body.users;
+      users.forEach(async (user) => {
+        const accessUser = await prisma.Access.create({
+          data: {
+            userId: Number(user.id),
+            entryId: Number(entryId),
+          },
+        });
+        if (!accessUser) {
+          res.status(400);
+          throw new Error('Failed to grant access to user');
+        }
+      });
+    }
+
+    //Response after update
+    if (entry) {
+      res.status(201).json({
+        id: Number(entry.id),
+        name: entry.name,
+        login: entry.login,
+        password: entry.password,
+        url: entry.url,
+        projectId: Number(entry.projectId),
+      });
+    } else {
+      res.status(400);
+      throw new Error('Invalid entry data');
+    }
+  } catch (error) {
+    console.log(error);
   }
 });
 

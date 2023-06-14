@@ -75,6 +75,47 @@ const grantAccessToExistingUser = asyncHandler(async (req, res) => {
   }
 });
 
+const getEntryAccesses = asyncHandler(async (req, res) => {
+  //Validate inputs
+
+  if (!validateID(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid ID');
+  }
+
+  const entryID = req.params.id;
+
+  //Check if entry exist
+  const entry = await prisma.Entry.findUnique({
+    where: {
+      id: Number(entryID),
+    },
+  });
+  if (!entry) {
+    res.status(400);
+
+    throw new Error('No such entry');
+  }
+
+  //Get access
+
+  const access = await prisma.Access.findMany({
+    where: {
+      entryId: Number(entryID),
+    },
+  });
+
+  //Response
+  if (access) {
+    res.status(201).json({
+      access,
+    });
+  } else {
+    res.status(400);
+    throw new Error('Invalid access data');
+  }
+});
+
 // @desc    Grant password to new user
 // @route   POST /api/access
 // @access  Private, admin
@@ -110,7 +151,7 @@ const grantAccessToNewUser = asyncHandler(async (req, res) => {
       email,
     },
   });
-  console.log(userExists);
+
   if (userExists) {
     res.status(400);
     throw new Error('User already exist');
@@ -166,4 +207,5 @@ const grantAccessToNewUser = asyncHandler(async (req, res) => {
 module.exports = {
   grantAccessToExistingUser,
   grantAccessToNewUser,
+  getEntryAccesses,
 };
