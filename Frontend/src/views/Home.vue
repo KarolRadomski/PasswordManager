@@ -6,7 +6,7 @@
         <h1>Yours passwords</h1>
       </div>
 
-      <div class="entrisAndAccesses" v-if="selectedProject?.entries?.length() > 0">
+      <div class="entrisAndAccesses" v-if="selectedProject?.entries?.length > 0">
         <div class="entries">
           <h3>Yours entries</h3>
           <div

@@ -85,7 +85,7 @@ export default {
         await this.getMyProjects();
       } else {
         const results = await this.validateToken();
-        if (!results) {
+        if (results == false) {
           await this.logout();
           this.$router.push('/login');
         }
