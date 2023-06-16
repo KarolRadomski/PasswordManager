@@ -41,7 +41,13 @@ export default {
       this.validationError = '';
       if (this.form.email.valid && this.form.password.value.length !== 0) {
         await this.login(this.form.email.value, this.form.password.value);
-        if (!this.userError) this.$router.push('/');
+        if (!this.userError) {
+          if (this.user?.admin) {
+            this.$router.push('/admin');
+          } else {
+            this.$router.push('/');
+          }
+        }
       } else {
         this.validationError = 'Uzupełnij wszystkie pola';
       }

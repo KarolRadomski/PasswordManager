@@ -20,7 +20,7 @@
 <script>
 import SideBar from '../components/SideBar.vue';
 import { mapState, mapActions } from 'pinia';
-import { useProjectStore } from '../stores/Project';
+import { useAdminStore } from '../stores/Admin';
 
 export default {
   name: 'AddProject',
@@ -33,7 +33,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions(useProjectStore, ['addProject']),
+    ...mapActions(useAdminStore, ['addProject']),
     validateName() {
       console.log(this.projectName.value);
       const xssRegex = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;

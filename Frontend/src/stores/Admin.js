@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 const CryptoJS = require('crypto-js');
 
-export const useProjectStore = defineStore('Project', {
+export const useAdminStore = defineStore('Admin', {
   state: () => {
     return {
       projects: [],
@@ -12,9 +12,35 @@ export const useProjectStore = defineStore('Project', {
       selectedEntryAccesses: [],
       users: [],
       projectError: '',
+      usersNumber: 0,
+      projectsNumber: 0,
+      entriesNumber: 0,
     };
   },
   actions: {
+    async getNumbers() {
+      try {
+        this.projectError = '';
+
+        let user = JSON.parse(localStorage.getItem('user'));
+        let config = {
+          headers: {
+            Authorization: 'Bearer ' + user.token,
+          },
+        };
+
+        const temp = await axios.get('api/users/count', config);
+        this.usersNumber = temp.data;
+
+        const temp2 = await axios.get('api/projects/count', config);
+        this.projectsNumber = temp2.data;
+
+        const temp3 = await axios.get('api/entry/count', config);
+        this.entriesNumber = temp3.data;
+      } catch (error) {
+        this.projectError = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+      }
+    },
     async getAllProjects() {
       try {
         this.projectError = '';

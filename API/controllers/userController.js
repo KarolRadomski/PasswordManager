@@ -13,6 +13,11 @@ const getAll = asyncHandler(async (req, res) => {
   const users = await prisma.User.findMany({});
   res.json(users);
 });
+const countUsers = asyncHandler(async (req, res) => {
+  const users = await prisma.User.findMany({});
+
+  res.json(users.length);
+});
 
 // @desc    Get all users
 // @route   GET /api/users/me
@@ -180,6 +185,7 @@ const generateToken = (id) => {
 
 module.exports = {
   getAll,
+  countUsers,
   getMe,
   addUser,
   loginUser,

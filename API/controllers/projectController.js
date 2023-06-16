@@ -12,6 +12,11 @@ const getAllProjects = asyncHandler(async (req, res) => {
   res.json(projects);
 });
 
+const countProjects = asyncHandler(async (req, res) => {
+  const projects = await prisma.Project.findMany({});
+  res.json(projects.length);
+});
+
 // @desc    Get user projects
 // @route   GET /api/projects/user
 // @access  Private
@@ -132,6 +137,7 @@ const removeProject = asyncHandler(async (req, res) => {
 
 module.exports = {
   getAllProjects,
+  countProjects,
   getUserProjects,
   addProject,
   removeProject,

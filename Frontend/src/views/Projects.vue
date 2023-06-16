@@ -6,10 +6,10 @@
         <h1>Projects</h1>
         <p>View all projects</p>
       </div>
-      <div class="nav">
+      <div class="nav" v-if="this.projects?.length > 0">
         <button type="button" id="addProject" @click="this.$router.push('/add-project')">Add project</button>
       </div>
-      <table class="projectsList">
+      <table class="projectsList" v-if="this.projects?.length > 0">
         <thead>
           <tr>
             <th>Project name</th>
@@ -50,6 +50,12 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="noProjects" v-else>
+        <h1>No projects yet</h1>
+        <p>Click on the button below to add a new project</p>
+        <button type="button" id="addProject" @click="this.$router.push('/add-project')">Add project</button>
+      </div>
     </div>
 
     <!-- Modal remove project -->
@@ -81,7 +87,7 @@
 <script>
 import SideBar from '../components/SideBar.vue';
 import { mapState, mapActions } from 'pinia';
-import { useProjectStore } from '../stores/Project';
+import { useAdminStore } from '../stores/Admin';
 
 export default {
   name: 'Projects',
@@ -94,13 +100,13 @@ export default {
     };
   },
   methods: {
-    ...mapActions(useProjectStore, ['getAllProjects', 'removeProject', 'selectProject']),
+    ...mapActions(useAdminStore, ['getAllProjects', 'removeProject', 'selectProject']),
     handleRemove() {
       this.removeProject(this.toRemove.name, this.toRemove.id);
     },
   },
   computed: {
-    ...mapState(useProjectStore, ['projects']),
+    ...mapState(useAdminStore, ['projects']),
   },
   components: {
     SideBar,
@@ -139,7 +145,8 @@ export default {
   justify-content: flex-end;
 }
 
-.nav button {
+.nav button,
+.noProjects button {
   margin: 0 5px;
   padding: 10px 15px;
   border: none;

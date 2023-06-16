@@ -1,12 +1,36 @@
 <template>
   <div class="sideBarWrapper">
-    <div>
-      <input class="searchBar" type="text" placeholder="Search" />
+    <!-- Admin  -->
+    <div v-if="this.user?.admin">
       <ul>
-        <li :class="[isActive == 'Dashboard' ? 'active' : '']"><a href="/">Dashboard</a></li>
+        <li :class="[isActive == 'Dashboard' ? 'active' : '']"><a href="/admin">Dashboard</a></li>
         <li :class="[isActive == 'Projects' ? 'active' : '']"><a href="./projects">Projects</a></li>
         <li :class="[isActive == 'Users' ? 'active' : '']"><a href="./users">Users</a></li>
       </ul>
+    </div>
+
+    <!-- User -->
+    <div v-else>
+      <input class="searchBar" type="text" placeholder="Search" v-model="searchQuery" @change="filterProducts" />
+      <h3 class="title">Yours projects</h3>
+
+      <ul v-if="filteredProjects.length > 0">
+        <li
+          v-for="project in filteredProjects"
+          :key="project.id"
+          :class="[selectedProject.id == project.id ? 'active' : '']"
+          @click="
+            () => {
+              selectProject(project.id);
+            }
+          "
+        >
+          {{ project.name }}
+        </li>
+      </ul>
+      <div v-else>
+        <p class="mt-5">You don't have any projects yet.</p>
+      </div>
     </div>
 
     <div>
@@ -21,23 +45,46 @@
 
 <script>
 import { useUserStore } from '../stores/User';
-import { mapState, mapActions } from 'pinia';
+import { useUsersStore } from '../stores/Users';
+import { mapState, mapActions, mapWritableState } from 'pinia';
 
 export default {
   name: 'SideBar',
   props: ['isActive'],
   data() {
-    return {};
+    return {
+      filteredProjects: [],
+      searchQuery: '',
+    };
   },
   computed: {
     ...mapState(useUserStore, ['user']),
+    ...mapState(useUsersStore, ['projects', 'selectedProject']),
+    ifSelectedProject(projectID) {
+      return this.selectedProject.id == projectID ? true : false;
+    },
+    filteredProjects() {
+      return this.projects.filter((project) => {
+        return project.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+      });
+    },
   },
   methods: {
     ...mapActions(useUserStore, ['logout']),
+    ...mapActions(useUsersStore, ['getMyProjects', 'selectProject']),
     async handleLogout() {
       await this.logout();
       this.$router.push('/login');
     },
+  },
+  async created() {
+    if (this.user === null) {
+      this.$router.push('/login');
+    } else {
+      if (!this.user.admin) {
+        await this.getMyProjects();
+      }
+    }
   },
 };
 </script>
@@ -72,10 +119,14 @@ export default {
   outline: none;
   transform: scale(1.03);
 }
-
+.title {
+  text-align: start;
+  margin-left: 20px;
+  margin-top: 20px;
+}
 ul {
   list-style-type: none;
-  margin: 50px 20px;
+  margin: 30px;
   padding: 0;
   text-align: left;
   font-size: 20px;
@@ -87,8 +138,13 @@ a {
   color: white;
   text-decoration: none;
 }
-li:hover > a {
+li:hover > a,
+li:hover {
   cursor: pointer;
+  color: #3498db;
+}
+
+.active {
   color: #3498db;
 }
 

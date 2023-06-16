@@ -8,14 +8,14 @@
           View all Entries for <b>{{ this.selectedProject.name }}</b>
         </p>
       </div>
-      <div class="nav">
+      <div class="nav" v-if="this.entries?.length > 0">
         <div class="showPassIcons">
           <button v-if="showPassword" @click="showPassword = !showPassword"><i class="bi bi-eye-slash-fill"></i> Hide passwords</button>
           <button v-else @click="showPassword = !showPassword"><i class="bi bi-eye-fill"></i> Show passwords</button>
         </div>
         <button type="button" id="addProject" @click="this.$router.push('/add-entry')">Add entries</button>
       </div>
-      <table class="projectsList">
+      <table class="projectsList" v-if="this.entries?.length > 0">
         <thead>
           <tr>
             <th>Entry name</th>
@@ -67,6 +67,11 @@
           </tr>
         </tbody>
       </table>
+      <div class="noEntries" v-else>
+        <h1>No entries yet</h1>
+        <p>Click on the button below to add a new entry</p>
+        <button type="button" id="addProject" @click="this.$router.push('/add-entry')">Add entry</button>
+      </div>
     </div>
 
     <!-- Modal remove project -->
@@ -98,7 +103,7 @@
 <script>
 import SideBar from '../components/SideBar.vue';
 import { mapState, mapActions } from 'pinia';
-import { useProjectStore } from '../stores/Project';
+import { useAdminStore } from '../stores/Admin';
 
 export default {
   name: 'Projects',
@@ -112,13 +117,13 @@ export default {
     };
   },
   methods: {
-    ...mapActions(useProjectStore, ['getAllProjectEntries', 'removeEntry', 'selectEntry']),
+    ...mapActions(useAdminStore, ['getAllProjectEntries', 'removeEntry', 'selectEntry']),
     handleRemove() {
       this.removeEntry(this.toRemove.name, this.toRemove.id);
     },
   },
   computed: {
-    ...mapState(useProjectStore, ['selectedProject', 'entries']),
+    ...mapState(useAdminStore, ['selectedProject', 'entries']),
   },
   components: {
     SideBar,
@@ -159,7 +164,8 @@ export default {
   margin: 20px 40px;
   justify-content: space-between;
 }
-.nav button {
+.nav button,
+.noEntries button {
   margin: 0 5px;
   padding: 5px 10px;
   border: none;

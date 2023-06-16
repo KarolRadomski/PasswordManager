@@ -8,12 +8,18 @@ import AddEntry from '../views/AddEntry.vue';
 import EditEntry from '../views/EditEntry.vue';
 import AddUser from '../views/AddUser.vue';
 import Users from '../views/Users.vue';
+import Admin from '../views/Admin.vue';
 
 const routes = [
   {
     path: '/',
     name: 'home',
     component: Home,
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: Admin,
   },
   {
     path: '/login',

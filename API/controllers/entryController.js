@@ -50,6 +50,11 @@ const getUserEntry = asyncHandler(async (req, res) => {
   res.status(201).json(entry);
 });
 
+const countEntries = asyncHandler(async (req, res) => {
+  const entries = await prisma.Entry.findMany({});
+  res.status(201).json(entries.length);
+});
+
 // @desc    Get all project entry
 // @route   GET /api/entry
 // @access  Private, admin
@@ -347,6 +352,7 @@ const removeProjectEntry = asyncHandler(async (req, res) => {
 
 module.exports = {
   getUserEntry,
+  countEntries,
   getAllProjectEntry,
   addNewProjectEntry,
   editProjectEntry,

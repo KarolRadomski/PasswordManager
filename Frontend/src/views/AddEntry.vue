@@ -36,7 +36,7 @@
 <script>
 import SideBar from '../components/SideBar.vue';
 import { mapState, mapActions } from 'pinia';
-import { useProjectStore } from '../stores/Project';
+import { useAdminStore } from '../stores/Admin';
 import VueMultiselect from 'vue-multiselect';
 
 export default {
@@ -65,7 +65,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions(useProjectStore, ['addEntry', 'getAllUsers']),
+    ...mapActions(useAdminStore, ['addEntry', 'getAllUsers']),
     validateName() {
       this.entryName.isValid = this.entryName.value.length < 3 || this.xssRegex.test(this.entryName.value) ? false : true;
     },
@@ -93,7 +93,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(useProjectStore, ['selectedProject', 'users']),
+    ...mapState(useAdminStore, ['selectedProject', 'users']),
   },
   created() {
     if (this.selectedProject == '' || this.selectedProject.id === '') {
