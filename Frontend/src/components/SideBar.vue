@@ -70,7 +70,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(useUserStore, ['logout']),
+    ...mapActions(useUserStore, ['logout', 'validateToken']),
     ...mapActions(useUsersStore, ['getMyProjects', 'selectProject']),
     async handleLogout() {
       await this.logout();
@@ -83,6 +83,12 @@ export default {
     } else {
       if (!this.user.admin) {
         await this.getMyProjects();
+      } else {
+        const results = await this.validateToken();
+        if (!results) {
+          await this.logout();
+          this.$router.push('/login');
+        }
       }
     }
   },

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import VueJwtDecode from 'vue-jwt-decode';
 
 export const useUserStore = defineStore('User', {
   state: () => {
@@ -10,6 +11,20 @@ export const useUserStore = defineStore('User', {
     };
   },
   actions: {
+    async validateToken() {
+      try {
+        let user = JSON.parse(localStorage.getItem('user'));
+
+        const decoded = VueJwtDecode.decode(user.token);
+        console.log(decoded);
+        if (decoded.id !== user.id || decoded.id !== 1) {
+          return false;
+        }
+      } catch (error) {
+        this.userError = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+      }
+    },
+
     // User login
     async login(email, password) {
       try {
